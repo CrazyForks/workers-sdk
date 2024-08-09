@@ -5,9 +5,10 @@ import { setTimeout } from "timers/promises";
 import getPort from "get-port";
 import dedent from "ts-dedent";
 import undici from "undici";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import WebSocket from "ws";
 import { WranglerE2ETestHelper } from "./helpers/e2e-wrangler-test";
+import type { DevToolsEvent } from "../src/api";
 
 const OPTIONS = [
 	{ remote: false },
@@ -27,7 +28,20 @@ function waitForMessageContaining<T>(ws: WebSocket, value: string): Promise<T> {
 	});
 }
 
-describe.each(OPTIONS)("DevEnv", ({ remote }) => {
+function collectMessagesContaining<T>(
+	ws: WebSocket,
+	value: string,
+	collection: T[]
+) {
+	ws.addEventListener("message", (event) => {
+		assert(typeof event.data === "string");
+		if (event.data.includes(value)) {
+			collection.push(JSON.parse(event.data));
+		}
+	});
+}
+
+describe.each(OPTIONS)("DevEnv $remote", ({ remote }) => {
 	let helper: WranglerE2ETestHelper;
 	let wrangler: Wrangler;
 	let DevEnv: Wrangler["unstable_DevEnv"];
@@ -70,6 +84,7 @@ describe.each(OPTIONS)("DevEnv", ({ remote }) => {
 		res = await worker.fetch("http://dummy");
 		await expect(res.text()).resolves.toBe("body:2");
 	});
+
 	it("InspectorProxyWorker discovery endpoints + devtools websocket connection", async (t) => {
 		const devEnv = new DevEnv();
 		t.onTestFinished(() => devEnv.teardown());
@@ -144,6 +159,7 @@ describe.each(OPTIONS)("DevEnv", ({ remote }) => {
 
 		await executionContextClearedPromise;
 	});
+
 	it("InspectorProxyWorker rejects unauthorised requests", async (t) => {
 		const devEnv = new DevEnv();
 		t.onTestFinished(() => devEnv.teardown());
@@ -184,6 +200,73 @@ describe.each(OPTIONS)("DevEnv", ({ remote }) => {
 		await expect(openPromise).rejects.toThrow("Unexpected server response");
 		ws.close();
 	});
+
+	// Regression test for https://github.com/cloudflare/workers-sdk/issues/5297
+	// The runtime inspector can send messages larger than 1MB limit websocket message permitted by UserWorkers.
+	// In the real-world, this is encountered when debugging large source files (source maps)
+	// or inspecting a variable that serializes to a large string.
+	// Connecting devtools directly to the inspector works fine, but we proxy the inspector messages
+	// through a worker (InspectorProxyWorker) which hits the limit (without the fix, compatibilityFlags:["increase_websocket_message_size"])
+	// By logging a large string we can verify that the inspector messages are being proxied successfully.
+	it("InspectorProxyWorker can proxy messages > 1MB", async (t) => {
+		const devEnv = new DevEnv();
+		t.onTestFinished(() => devEnv.teardown());
+
+		const LARGE_STRING = "a".repeat(2 ** 22);
+
+		const script = dedent`
+                export default {
+                    fetch() {
+                        console.log("${LARGE_STRING}");
+
+                        return new Response("body:1");
+                    }
+                }
+            `;
+
+		await helper.seed({
+			"src/index.ts": script,
+		});
+
+		const worker = await devEnv.startWorker({
+			name: "test-worker",
+			entrypoint: path.resolve(helper.tmpPath, "src/index.ts"),
+
+			dev: { remote },
+		});
+
+		const inspectorUrl = await worker.inspectorUrl;
+
+		const ws = new WebSocket(
+			`ws://${inspectorUrl.host}/core:user:${worker.config.name}`
+		);
+
+		const consoleApiMessages: DevToolsEvent<"Runtime.consoleAPICalled">[] = [];
+		collectMessagesContaining(
+			ws,
+			"Runtime.consoleAPICalled",
+			consoleApiMessages
+		);
+
+		await worker.fetch("http://dummy");
+
+		await vi.waitFor(
+			async () => {
+				await expect(consoleApiMessages).toMatchObject([
+					{
+						method: "Runtime.consoleAPICalled",
+						params: {
+							args: expect.arrayContaining([
+								{ type: "string", value: LARGE_STRING },
+							]),
+						},
+					},
+				]);
+			},
+			{ timeout: 5_000 }
+		);
+	});
+
 	it("User worker exception", async (t) => {
 		const devEnv = new DevEnv();
 		t.onTestFinished(() => devEnv.teardown());
@@ -264,6 +347,7 @@ describe.each(OPTIONS)("DevEnv", ({ remote }) => {
 		res = await worker.fetch("http://dummy");
 		await expect(res.text()).resolves.toBe("body:3");
 	});
+
 	it("config.dev.{server,inspector} changes, restart the server instance", async (t) => {
 		const devEnv = new DevEnv();
 		t.onTestFinished(() => devEnv.teardown());
@@ -316,6 +400,7 @@ describe.each(OPTIONS)("DevEnv", ({ remote }) => {
 			undici.fetch(`http://127.0.0.1:${oldPort}`)
 		).rejects.toThrowError("fetch failed");
 	});
+
 	it("liveReload", async (t) => {
 		const devEnv = new DevEnv();
 		t.onTestFinished(() => devEnv.teardown());
@@ -393,6 +478,7 @@ describe.each(OPTIONS)("DevEnv", ({ remote }) => {
 		expect(resText).toBe("body:3");
 		expect(resText).not.toEqual(expect.stringMatching(scriptRegex));
 	});
+
 	it("urlOverrides take effect in the UserWorker", async (t) => {
 		const devEnv = new DevEnv();
 		t.onTestFinished(() => devEnv.teardown());
@@ -439,6 +525,7 @@ describe.each(OPTIONS)("DevEnv", ({ remote }) => {
 			"URL: https://mybank.co.uk/test/path/2"
 		);
 	});
+
 	it("inflight requests are retried during UserWorker reloads", async (t) => {
 		// to simulate inflight requests failing during UserWorker reloads,
 		// we will use a UserWorker with a longish `await setTimeout(...)`
