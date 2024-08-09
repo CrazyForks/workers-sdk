@@ -116,13 +116,7 @@ type StaticFileMap = {
 };
 
 const defaultSelectVariant = async (ctx: C3Context) => {
-	const lang = ctx.args.lang;
-
-	if (!lang) {
-		crash("No language is selected");
-	}
-
-	return lang;
+	return ctx.args.lang;
 };
 
 export type FrameworkMap = Awaited<ReturnType<typeof getFrameworkMap>>;
@@ -373,26 +367,30 @@ export const createContext = async (
 
 	const path = resolve(projectName);
 	const languageVariants =
-		template.copyFiles && !isVariantInfo(template.copyFiles)
+		template.copyFiles &&
+		!isVariantInfo(template.copyFiles) &&
+		!template.copyFiles.selectVariant
 			? Object.keys(template.copyFiles.variants)
 			: [];
 
+	// Prompt for language preference only if selectVariant is not defined
+	// If it is defined, copyTemplateFiles will handle the selection
 	if (languageVariants.length > 0) {
-	// If we can infer from the directory that it uses typescript, use that
-	if (hasTsConfig(path)) {
-		args.lang = "ts";
-	}
+		// If we can infer from the directory that it uses typescript, use that
+		if (hasTsConfig(path)) {
+			args.lang = "ts";
+		}
 
-	// If there is a generate process then we assume that a potential typescript
-	// setup must have been part of it, so we should not offer it here
-	if (template.generate) {
-		args.lang = "js";
-	}
+		// If there is a generate process then we assume that a potential typescript
+		// setup must have been part of it, so we should not offer it here
+		if (template.generate) {
+			args.lang = "js";
+		}
 
-	const languageOptions = [
-		{ label: "TypeScript", value: "ts" },
-		{ label: "JavaScript", value: "js" },
-		{ label: "Python (beta)", value: "python" },
+		const languageOptions = [
+			{ label: "TypeScript", value: "ts" },
+			{ label: "JavaScript", value: "js" },
+			{ label: "Python (beta)", value: "python" },
 		];
 
 		// Otherwise, prompt the user for their language preference
@@ -446,8 +444,13 @@ export async function copyTemplateFiles(ctx: C3Context) {
 
 		const variant = await selectVariant(ctx);
 
-		const variantPath = copyFiles.variants[variant].path;
-		srcdir = join(getTemplatePath(ctx), variantPath);
+		const variantInfo = variant ? copyFiles.variants[variant] : null;
+
+		if (!variantInfo) {
+			crash(`Unknown variant provided: ${JSON.stringify(variant ?? "")}`);
+		}
+
+		srcdir = join(getTemplatePath(ctx), variantInfo.path);
 	}
 
 	const copyDestDir = await getCopyFilesDestinationDir(ctx);
