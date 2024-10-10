@@ -24,21 +24,11 @@ export function validateDescription(
 	console.log("PR:", title);
 	const parsedLabels = JSON.parse(labels);
 
-	if (parsedLabels.includes("skip-pr-validation")) {
+	if (parsedLabels.includes("skip-pr-description-validation")) {
 		console.log(
-			"Skipping validation because the `skip-pr-validation` label has been applied"
+			"Skipping validation because the `skip-pr-description-validation` label has been applied"
 		);
 		return [];
-	}
-
-	if (
-		!/^Fixes (#\d+|\[[A-Z]+-\d+\]\(https:\/\/jira\.cfdata\.org\/browse\/[A-Z]+-\d+\))/m.test(
-			body
-		)
-	) {
-		errors.push(
-			"Your PR description must include an issue reference in the format `Fixes #000` (for GitHub issues) or `Fixes [AA-000](https://jira.cfdata.org/browse/AA-000)` (for internal Jira ticket references)"
-		);
 	}
 
 	if (/- \[x\] TODO \(before merge\)/.test(body)) {
@@ -94,7 +84,7 @@ export function validateDescription(
 
 	if (
 		!(
-			/- \[x\] Cloudflare docs PR\(s\): https:\/\/github\.com\/cloudflare\/cloudflare-docs\/(pull|issue)\/\d+/.test(
+			/- \[x\] Cloudflare docs PR\(s\): https:\/\/github\.com\/cloudflare\/cloudflare-docs\/(pull|issues)\/\d+/.test(
 				body
 			) || /- \[x\] Documentation not necessary because: .+/.test(body)
 		)

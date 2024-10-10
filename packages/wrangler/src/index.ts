@@ -12,7 +12,10 @@ import { d1 } from "./d1";
 import { deleteHandler, deleteOptions } from "./delete";
 import { deployHandler, deployOptions } from "./deploy";
 import { isAuthenticationError } from "./deploy/deploy";
-import { isBuildFailure } from "./deployment-bundle/build-failures";
+import {
+	isBuildFailure,
+	isBuildFailureFromCause,
+} from "./deployment-bundle/build-failures";
 import {
 	commonDeploymentCMDSetup,
 	deployments,
@@ -340,7 +343,7 @@ export function createCLIParser(argv: string[]) {
 	/******************************************************/
 	// docs
 	wrangler.command(
-		"docs [command]",
+		"docs [search..]",
 		"📚 Open Wrangler's command documentation in your browser\n",
 		docsOptions,
 		docsHandler
@@ -904,10 +907,30 @@ export async function main(argv: string[]): Promise<void> {
 		} else if (isBuildFailure(e)) {
 			mayReport = false;
 			logBuildFailure(e.errors, e.warnings);
-			logger.error(e.message);
+		} else if (isBuildFailureFromCause(e)) {
+			mayReport = false;
+			logBuildFailure(e.cause.errors, e.cause.warnings);
 		} else {
-			logger.error(e instanceof Error ? e.message : e);
-			if (!(e instanceof UserError)) {
+			let loggableException = e;
+			if (
+				// Is this a StartDevEnv error event? If so, unwrap the cause, which is usually the user-recognisable error
+				e &&
+				typeof e === "object" &&
+				"type" in e &&
+				e.type === "error" &&
+				"cause" in e &&
+				e.cause instanceof Error
+			) {
+				loggableException = e.cause;
+			}
+
+			logger.error(
+				loggableException instanceof Error
+					? loggableException.message
+					: loggableException
+			);
+
+			if (!(loggableException instanceof UserError)) {
 				await logPossibleBugMessage();
 			}
 		}

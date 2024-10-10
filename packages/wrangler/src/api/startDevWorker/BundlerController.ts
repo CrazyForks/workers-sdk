@@ -10,9 +10,11 @@ import {
 	getWrangler1xLegacyModuleReferences,
 } from "../../deployment-bundle/module-collection";
 import { runCustomBuild } from "../../deployment-bundle/run-custom-build";
+import { getAssetChangeMessage } from "../../dev";
 import { runBuild } from "../../dev/use-esbuild";
 import { logger } from "../../logger";
 import { isNavigatorDefined } from "../../navigator-user-agent";
+import { debounce } from "../../pages/utils";
 import { getWranglerTmpDir } from "../../paths";
 import { Controller } from "./BaseController";
 import { castErrorCause } from "./events";
@@ -259,6 +261,28 @@ export class BundlerController extends Controller<BundlerControllerEventMap> {
 		);
 	}
 
+	#assetsWatcher?: ReturnType<typeof watch>;
+	async #ensureWatchingAssets(config: StartDevWorkerOptions) {
+		await this.#assetsWatcher?.close();
+
+		const debouncedRefreshBundle = debounce(() => {
+			if (this.#currentBundle) {
+				this.emitBundleCompleteEvent(config, this.#currentBundle);
+			}
+		});
+
+		if (config.assets?.directory) {
+			this.#assetsWatcher = watch(config.assets.directory, {
+				persistent: true,
+				ignoreInitial: true,
+			}).on("all", async (eventName, filePath) => {
+				const message = getAssetChangeMessage(eventName, filePath);
+				logger.debug(`🌀 ${message}...`);
+				debouncedRefreshBundle();
+			});
+		}
+	}
+
 	#tmpDir?: EphemeralDirectory;
 
 	onConfigUpdate(event: ConfigUpdateEvent) {
@@ -280,6 +304,7 @@ export class BundlerController extends Controller<BundlerControllerEventMap> {
 
 		void this.#startCustomBuild(event.config);
 		void this.#startBundle(event.config);
+		void this.#ensureWatchingAssets(event.config);
 	}
 
 	async teardown() {
@@ -289,6 +314,7 @@ export class BundlerController extends Controller<BundlerControllerEventMap> {
 		await Promise.all([
 			this.#bundlerCleanup?.(),
 			this.#customBuildWatcher?.close(),
+			this.#assetsWatcher?.close(),
 		]);
 		logger.debug("BundlerController teardown complete");
 	}

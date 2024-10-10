@@ -1,5 +1,62 @@
 # miniflare
 
+## 3.20240925.1
+
+### Patch Changes
+
+- [#6835](https://github.com/cloudflare/workers-sdk/pull/6835) [`5c50949`](https://github.com/cloudflare/workers-sdk/commit/5c509494807a1c0418be83c47a459ec80126848e) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: rename asset plugin options slightly to match wrangler.toml better
+
+  Renamed `path` -> `directory`, `bindingName` -> `binding`.
+
+## 3.20240925.0
+
+### Patch Changes
+
+- [#6826](https://github.com/cloudflare/workers-sdk/pull/6826) [`5e2e62c`](https://github.com/cloudflare/workers-sdk/commit/5e2e62c165166819c63998ad0c7caaaf57d7b988) Thanks [@dependabot](https://github.com/apps/dependabot)! - chore: update dependencies of "miniflare" package
+
+  The following dependency versions have been updated:
+
+  | Dependency                | From          | To            |
+  | ------------------------- | ------------- | ------------- |
+  | workerd                   | 1.20240909.0  | 1.20240925.0  |
+  | @cloudflare/workers-types | ^4.20240909.0 | ^4.20240925.0 |
+
+- [#6824](https://github.com/cloudflare/workers-sdk/pull/6824) [`1c58a74`](https://github.com/cloudflare/workers-sdk/commit/1c58a7470757508e64003d05c76d9deb7f223763) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: teach Miniflare about node_compat version date switch
+
+  A compatibility of Sept 23, 2024 or later means that `nodejs_compat` is equivalent to `nodejs_compat_v2`.
+
+## 3.20240909.5
+
+### Patch Changes
+
+- [#6728](https://github.com/cloudflare/workers-sdk/pull/6728) [`1ca313f`](https://github.com/cloudflare/workers-sdk/commit/1ca313f2041688cd13e25f0817e3b72dfc930bac) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: remove filepath encoding on asset upload and handle sometimes-encoded characters
+
+  Some characters like [ ] @ are encoded by encodeURIComponent() but are often requested at an unencoded URL path.
+  This change will make assets with filenames with these characters accessible at both the encoded and unencoded paths,
+  but to use the encoded path as the canonical one, and to redirect requests to the canonical path if necessary.
+
+## 3.20240909.4
+
+### Patch Changes
+
+- [#6736](https://github.com/cloudflare/workers-sdk/pull/6736) [`2ddbb65`](https://github.com/cloudflare/workers-sdk/commit/2ddbb65033e88dfc2127a093fc894ac91bd96369) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: reflect file changes when using dev with workers + assets
+
+## 3.20240909.3
+
+### Patch Changes
+
+- [#6514](https://github.com/cloudflare/workers-sdk/pull/6514) [`2407c41`](https://github.com/cloudflare/workers-sdk/commit/2407c41484f29845a64ccffd9368bc5d234eb831) Thanks [@CarmenPopoviciu](https://github.com/CarmenPopoviciu)! - fix: Fix Miniflare regression introduced in #5570
+
+  PR #5570 introduced a regression in Miniflare, namely that declaring Queue Producers like `queueProducers: { "MY_QUEUE": "my-queue" }` no longer works. This commit fixes the issue.
+
+  Fixes #5908
+
+## 3.20240909.2
+
+### Patch Changes
+
+- [#6719](https://github.com/cloudflare/workers-sdk/pull/6719) [`5b5dd95`](https://github.com/cloudflare/workers-sdk/commit/5b5dd9573b2c43023cbcba0fbcc3e374465e745e) Thanks [@sdnts](https://github.com/sdnts)! - fix: Respect delivery delays for Queue consumers in local dev mode
+
 ## 3.20240909.1
 
 ### Minor Changes

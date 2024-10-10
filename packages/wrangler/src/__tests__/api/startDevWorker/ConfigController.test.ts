@@ -3,6 +3,7 @@ import path from "node:path";
 import dedent from "ts-dedent";
 import { describe, it } from "vitest";
 import { ConfigController } from "../../../api/startDevWorker/ConfigController";
+import { mockAccountId, mockApiToken } from "../../helpers/mock-account-id";
 import { mockConsoleMethods } from "../../helpers/mock-console";
 import { runInTempDir } from "../../helpers/run-in-tmp";
 import { seed } from "../../helpers/seed";
@@ -18,6 +19,8 @@ async function waitForConfigUpdate(
 describe("ConfigController", () => {
 	runInTempDir();
 	mockConsoleMethods();
+	mockAccountId();
+	mockApiToken();
 
 	it("should emit configUpdate events with defaults applied", async () => {
 		const controller = new ConfigController();
@@ -120,14 +123,20 @@ describe("ConfigController", () => {
 			dev: {
 				origin: { hostname: "myexample.com" },
 			},
+			build: {
+				alias: { foo: "bar" },
+			},
 		});
-		// expect `dev` field to be overwritten and all other config to remain intact
+		// expect `dev` and `build.alias` fields to be overwritten and all other config to remain intact
 		await expect(event3).resolves.toMatchObject({
 			type: "configUpdate",
 			config: {
 				entrypoint: path.join(process.cwd(), "src/index.ts"),
 				directory: process.cwd(),
 				build: {
+					alias: {
+						foo: "bar",
+					},
 					additionalModules: [],
 					define: {},
 					format: "modules",

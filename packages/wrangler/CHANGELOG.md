@@ -1,5 +1,235 @@
 # wrangler
 
+## 3.80.3
+
+### Patch Changes
+
+- [#6927](https://github.com/cloudflare/workers-sdk/pull/6927) [`2af75ed`](https://github.com/cloudflare/workers-sdk/commit/2af75edb3c0722c04793c74f46aa099f4a3f27a9) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: respect `CLOUDFLARE_ACCOUNT_ID` with `wrangler pages project` commands
+
+  Fixes [#4947](https://github.com/cloudflare/workers-sdk/issues/4947)
+
+- [#6894](https://github.com/cloudflare/workers-sdk/pull/6894) [`eaf71b8`](https://github.com/cloudflare/workers-sdk/commit/eaf71b86cc5650cffb54c942704ce3dd1b5ed6a7) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: improve the rendering of build errors when bundling
+
+- [#6920](https://github.com/cloudflare/workers-sdk/pull/6920) [`2e64968`](https://github.com/cloudflare/workers-sdk/commit/2e649686c259c639701a62e754c53448cb694dfc) Thanks [@vicb](https://github.com/vicb)! - chore: update unenv dependency version
+
+  Pulls in [feat(node/net): implement Server mock](https://github.com/unjs/unenv/pull/316).
+
+- [#6932](https://github.com/cloudflare/workers-sdk/pull/6932) [`4c6aad0`](https://github.com/cloudflare/workers-sdk/commit/4c6aad05b919a56484d13e4a49b861dcafbc0a2c) Thanks [@vicb](https://github.com/vicb)! - fix: allow `require`ing unenv aliased packages
+
+  Before this PR `require`ing packages aliased in unenv would fail.
+  That's because `require` would load the mjs file.
+
+  This PR adds wraps the mjs file in a virtual ES module to allow `require`ing it.
+
+## 3.80.2
+
+### Patch Changes
+
+- [#6923](https://github.com/cloudflare/workers-sdk/pull/6923) [`1320f20`](https://github.com/cloudflare/workers-sdk/commit/1320f20b38d7b4623fe21d38118bdc9fb8514a99) Thanks [@andyjessop](https://github.com/andyjessop)! - chore: adds eslint-disable for ESLint error on empty typescript interface in workers-configuration.d.ts
+
+## 3.80.1
+
+### Patch Changes
+
+- [#6908](https://github.com/cloudflare/workers-sdk/pull/6908) [`d696850`](https://github.com/cloudflare/workers-sdk/commit/d6968507b7eab36abdc4d6c2ffe183788857d08c) Thanks [@penalosa](https://github.com/penalosa)! - fix: debounce restarting worker on assets dir file changes when `--x-dev-env` is enabled.
+
+- [#6902](https://github.com/cloudflare/workers-sdk/pull/6902) [`dc92af2`](https://github.com/cloudflare/workers-sdk/commit/dc92af28c572e3f7a03b84afd53f10a40ee2a5f8) Thanks [@threepointone](https://github.com/threepointone)! - fix: enable esbuild's keepNames: true to set .name on functions/classes
+
+- [#6909](https://github.com/cloudflare/workers-sdk/pull/6909) [`82180a7`](https://github.com/cloudflare/workers-sdk/commit/82180a7a7680028f2ea24ae8b1c8479d39627826) Thanks [@penalosa](https://github.com/penalosa)! - fix: Various fixes for logging in `--x-dev-env`, primarily to ensure the hotkeys don't wipe useful output and are cleaned up correctly
+
+- [#6903](https://github.com/cloudflare/workers-sdk/pull/6903) [`54924a4`](https://github.com/cloudflare/workers-sdk/commit/54924a430354c0e427770ee4289217660141c72e) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: ensure that `alias` config gets passed through to the bundler when using new `--x-dev-env`
+
+  Fixes #6898
+
+- [#6911](https://github.com/cloudflare/workers-sdk/pull/6911) [`30b7328`](https://github.com/cloudflare/workers-sdk/commit/30b7328073c86ff9adebd594015bca6844da7163) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: infer experimentalJsonConfig from file extension
+
+  Fixes [#5768](https://github.com/cloudflare/workers-sdk/issues/5768) - issue with vitest and Pages projects with wrangler.toml
+
+- Updated dependencies [[`5c50949`](https://github.com/cloudflare/workers-sdk/commit/5c509494807a1c0418be83c47a459ec80126848e)]:
+  - miniflare@3.20240925.1
+
+## 3.80.0
+
+### Minor Changes
+
+- [#6408](https://github.com/cloudflare/workers-sdk/pull/6408) [`3fa846e`](https://github.com/cloudflare/workers-sdk/commit/3fa846ec205a1f4e91bc1f69640dfd6e0a7b6a77) Thanks [@RamIdeas](https://github.com/RamIdeas)! - feat: update the `--experimental-dev-env` (shorthand: `--x-dev-env`) flag to on-by-default
+
+  If you experience any issues, you can disable the flag with `--x-dev-env=false`. Please also let us know by opening an issue at https://github.com/cloudflare/workers-sdk/issues/new/choose.
+
+### Patch Changes
+
+- [#6854](https://github.com/cloudflare/workers-sdk/pull/6854) [`04a8fed`](https://github.com/cloudflare/workers-sdk/commit/04a8feda8ee1e855ac9935b2395db4eed20b99b7) Thanks [@penalosa](https://github.com/penalosa)! - chore: Include serialised `FormData` in debug logs
+
+- [#6879](https://github.com/cloudflare/workers-sdk/pull/6879) [`b27d8cb`](https://github.com/cloudflare/workers-sdk/commit/b27d8cbad4d2bcf435e7ac87891b17db1997cd4e) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: the docs command should not crash if given search terms
+
+  Fixes a regression accidentally introduced by #3735.
+
+- [#6873](https://github.com/cloudflare/workers-sdk/pull/6873) [`b123f43`](https://github.com/cloudflare/workers-sdk/commit/b123f43c6946fa97f49bc10532c924b9c58548b6) Thanks [@zwily](https://github.com/zwily)! - fix: reduce logging noise during wrangler dev with static assets
+
+  Updates to static assets are accessible by passing in --log-level="debug" but otherwise hidden.
+
+- [#6881](https://github.com/cloudflare/workers-sdk/pull/6881) [`7ca37bc`](https://github.com/cloudflare/workers-sdk/commit/7ca37bcbb274e88709fc14aea6f62c003ddc1b92) Thanks [@RamIdeas](https://github.com/RamIdeas)! - fix: custom builds outputting files in assets watched directory no longer cause the custom build to run again in an infinite loop
+
+- [#6872](https://github.com/cloudflare/workers-sdk/pull/6872) [`b2d094e`](https://github.com/cloudflare/workers-sdk/commit/b2d094e52b519decf8fdef1bb8dcd42d3e4ac2ad) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: render a helpful build error if a Service Worker mode Worker has imports
+
+  A common mistake is to forget to export from the entry-point of a Worker, which causes
+  Wrangler to infer that we are in "Service Worker" mode.
+
+  In this mode, imports to external modules are not allowed.
+  Currently this only fails at runtime, because our esbuild step converts these imports to an internal `__require()` call that throws an error.
+  The error message is misleading and does not help the user identify the cause of the problem.
+  This is particularly tricky where the external imports are added by a library or our own node.js polyfills.
+
+  Fixes #6648
+
+- [#6792](https://github.com/cloudflare/workers-sdk/pull/6792) [`27e8385`](https://github.com/cloudflare/workers-sdk/commit/27e8385167a4ef6eff9bb91cf0203184fbd16915) Thanks [@penalosa](https://github.com/penalosa)! - fix: Handle more module declaration cases
+
+- [#6838](https://github.com/cloudflare/workers-sdk/pull/6838) [`7dbd0c8`](https://github.com/cloudflare/workers-sdk/commit/7dbd0c82a52ba772f46081ccd4b39d59b1f4c8bf) Thanks [@GregBrimble](https://github.com/GregBrimble)! - fix: Improve static asset upload messaging
+
+## 3.79.0
+
+### Minor Changes
+
+- [#6801](https://github.com/cloudflare/workers-sdk/pull/6801) [`6009bb4`](https://github.com/cloudflare/workers-sdk/commit/6009bb44185e6a8a464528c945ce5a47eb992837) Thanks [@RamIdeas](https://github.com/RamIdeas)! - feat: implement retries within `wrangler deploy` and `wrangler versions upload` to workaround spotty network connections and service flakes
+
+### Patch Changes
+
+- [#6870](https://github.com/cloudflare/workers-sdk/pull/6870) [`dc9039a`](https://github.com/cloudflare/workers-sdk/commit/dc9039a36f2e526a9a224a523fa6ebcdd42a9223) Thanks [@penalosa](https://github.com/penalosa)! - fix: Include `workerd` in the external dependecies of Wrangler to fix local builds.
+
+- [#6866](https://github.com/cloudflare/workers-sdk/pull/6866) [`c75b0d9`](https://github.com/cloudflare/workers-sdk/commit/c75b0d9fec6cc6769b5f35a9455bb06588a68bbf) Thanks [@zwily](https://github.com/zwily)! - fix: debounce restarting worker on assets dir file changes
+
+## 3.78.12
+
+### Patch Changes
+
+- [#6840](https://github.com/cloudflare/workers-sdk/pull/6840) [`5bfb75d`](https://github.com/cloudflare/workers-sdk/commit/5bfb75df8a81fc42f0eecd00fed5b84e5fab88d7) Thanks [@a-robinson](https://github.com/a-robinson)! - chore: update warning in `wrangler dev --remote` when using Queues to not mention beta status
+
+## 3.78.11
+
+### Patch Changes
+
+- [#6819](https://github.com/cloudflare/workers-sdk/pull/6819) [`7ede181`](https://github.com/cloudflare/workers-sdk/commit/7ede1811376e4c08b9aba79c84b90ca2942ee87e) Thanks [@CarmenPopoviciu](https://github.com/CarmenPopoviciu)! - fix: Validate `[routes]` on configuration file changes
+
+## 3.78.10
+
+### Patch Changes
+
+- [#6824](https://github.com/cloudflare/workers-sdk/pull/6824) [`1c58a74`](https://github.com/cloudflare/workers-sdk/commit/1c58a7470757508e64003d05c76d9deb7f223763) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: tidy up error messaging for unexpected use of Node.js APIs
+
+  Fixes #6822
+
+- Updated dependencies [[`5e2e62c`](https://github.com/cloudflare/workers-sdk/commit/5e2e62c165166819c63998ad0c7caaaf57d7b988), [`1c58a74`](https://github.com/cloudflare/workers-sdk/commit/1c58a7470757508e64003d05c76d9deb7f223763)]:
+  - miniflare@3.20240925.0
+
+## 3.78.9
+
+### Patch Changes
+
+- [#6753](https://github.com/cloudflare/workers-sdk/pull/6753) [`4e33f2c`](https://github.com/cloudflare/workers-sdk/commit/4e33f2cdc1d9ab59fdbd6fcc162632c91da9b21b) Thanks [@bluwy](https://github.com/bluwy)! - refactor: prevent bundling entire `package.json` in built code
+
+- [#6812](https://github.com/cloudflare/workers-sdk/pull/6812) [`f700d37`](https://github.com/cloudflare/workers-sdk/commit/f700d3704a4fca98f8c74549ae849dea8cc1013b) Thanks [@CarmenPopoviciu](https://github.com/CarmenPopoviciu)! - fix: Validate additional config properties for `[observability]`
+
+- [#6751](https://github.com/cloudflare/workers-sdk/pull/6751) [`638a550`](https://github.com/cloudflare/workers-sdk/commit/638a55063b5b74ad30dfe98f8ee2e23e86f2c25a) Thanks [@bluwy](https://github.com/bluwy)! - refactor: simplify date calculation and remove date-fns dependency
+
+- [#6809](https://github.com/cloudflare/workers-sdk/pull/6809) [`28cb0d7`](https://github.com/cloudflare/workers-sdk/commit/28cb0d759e5a0863b92576bbec0df3305806e4aa) Thanks [@smellercf](https://github.com/smellercf)! - fix: Remove Beta tag from r2 event notification wrangler command descriptions
+
+- [#6802](https://github.com/cloudflare/workers-sdk/pull/6802) [`17eb8a9`](https://github.com/cloudflare/workers-sdk/commit/17eb8a9f9e477fe064e5b0e7e716ba8b8ce0cccc) Thanks [@CarmenPopoviciu](https://github.com/CarmenPopoviciu)! - chore: rename `experimental_assets` to `assets`
+
+- [#6781](https://github.com/cloudflare/workers-sdk/pull/6781) [`0792fa0`](https://github.com/cloudflare/workers-sdk/commit/0792fa08fbda89d282b87be86cd05f961ca38df1) Thanks [@mikenomitch](https://github.com/mikenomitch)! - chore: tweaks warning when using node_compat
+
+## 3.78.8
+
+### Patch Changes
+
+- [#6791](https://github.com/cloudflare/workers-sdk/pull/6791) [`74d719f`](https://github.com/cloudflare/workers-sdk/commit/74d719fb8d2ce1e877b3c70da2a495386084d892) Thanks [@penalosa](https://github.com/penalosa)! - fix: Add missing binding to `init --from-dash`
+
+- [#6728](https://github.com/cloudflare/workers-sdk/pull/6728) [`1ca313f`](https://github.com/cloudflare/workers-sdk/commit/1ca313f2041688cd13e25f0817e3b72dfc930bac) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: remove filepath encoding on asset upload and handle sometimes-encoded characters
+
+  Some characters like [ ] @ are encoded by encodeURIComponent() but are often requested at an unencoded URL path.
+  This change will make assets with filenames with these characters accessible at both the encoded and unencoded paths,
+  but to use the encoded path as the canonical one, and to redirect requests to the canonical path if necessary.
+
+- [#6798](https://github.com/cloudflare/workers-sdk/pull/6798) [`7d7f19a`](https://github.com/cloudflare/workers-sdk/commit/7d7f19a2ca501d311c00d15c78ba3bec1a50353e) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: error if an asset binding is provided without a Worker script
+
+- Updated dependencies [[`1ca313f`](https://github.com/cloudflare/workers-sdk/commit/1ca313f2041688cd13e25f0817e3b72dfc930bac)]:
+  - @cloudflare/workers-shared@0.5.4
+  - miniflare@3.20240909.5
+
+## 3.78.7
+
+### Patch Changes
+
+- [#6775](https://github.com/cloudflare/workers-sdk/pull/6775) [`ecd82e8`](https://github.com/cloudflare/workers-sdk/commit/ecd82e8471688901307c3bbbab8a382eb9d04811) Thanks [@CarmenPopoviciu](https://github.com/CarmenPopoviciu)! - fix: Support switching between static and dynamic Workers
+
+  This commit fixes the current behaviour of watch mode for Workers with assets, and adds support for switching between static and dynamic Workers within a single `wrangler dev` session.
+
+- [#6762](https://github.com/cloudflare/workers-sdk/pull/6762) [`2840b9f`](https://github.com/cloudflare/workers-sdk/commit/2840b9f80c1b8fe66489eb6d749c38f6ece2779d) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: error if a user inadvertently uploads a Pages `_workers.js` file or directory as an asset
+
+- [#6778](https://github.com/cloudflare/workers-sdk/pull/6778) [`61dd93a`](https://github.com/cloudflare/workers-sdk/commit/61dd93aaacac8b421b4ffcf7cde59ed6b651fc1b) Thanks [@CarmenPopoviciu](https://github.com/CarmenPopoviciu)! - fix: Error if Workers + Assets are run in remote mode
+
+  Workers + Assets are currently supported only in local mode. We should throw an error if users attempt to use Workers with assets in remote mode.
+
+- [#6782](https://github.com/cloudflare/workers-sdk/pull/6782) [`7655505`](https://github.com/cloudflare/workers-sdk/commit/7655505654400c8525e4b0164e4e5b3b3c20bed4) Thanks [@vicb](https://github.com/vicb)! - chore: update unenv dependency version
+
+- [#6777](https://github.com/cloudflare/workers-sdk/pull/6777) [`9649dbc`](https://github.com/cloudflare/workers-sdk/commit/9649dbc74d022fa5fdb065cf3e7a8d6d791f0a88) Thanks [@penalosa](https://github.com/penalosa)! - chore: Update CI messaging
+
+- [#6779](https://github.com/cloudflare/workers-sdk/pull/6779) [`3e75612`](https://github.com/cloudflare/workers-sdk/commit/3e75612ffb5e422021d1d3b172e5dc93a4b7c48a) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: include asset binding in `wrangler types`
+
+## 3.78.6
+
+### Patch Changes
+
+- [#6743](https://github.com/cloudflare/workers-sdk/pull/6743) [`b45e326`](https://github.com/cloudflare/workers-sdk/commit/b45e32695cc1b4d5c5fb84384cff30a15f744bb3) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - fix: ability to build tricky Node.js compat scenario Workers
+
+  Adds support for non-default build conditions and platform via the WRANGLER_BUILD_CONDITIONS and WRANGLER_BUILD_PLATFORM flags.
+
+  Fixes https://github.com/cloudflare/workers-sdk/issues/6742
+
+- [#6776](https://github.com/cloudflare/workers-sdk/pull/6776) [`02de103`](https://github.com/cloudflare/workers-sdk/commit/02de103435689c552e231a2ae2249adeb5f60a8b) Thanks [@zebp](https://github.com/zebp)! - fix: disable observability on deploy if not explicitly defined in config
+
+  When deploying a Worker that has observability enabled in the deployed version but not specified in the `wrangler.toml` Wrangler will now set observability to disabled for the new version to match the `wrangler.toml` as the source of truth.
+
+- Updated dependencies [[`2ddbb65`](https://github.com/cloudflare/workers-sdk/commit/2ddbb65033e88dfc2127a093fc894ac91bd96369)]:
+  - miniflare@3.20240909.4
+
+## 3.78.5
+
+### Patch Changes
+
+- [#6744](https://github.com/cloudflare/workers-sdk/pull/6744) [`e3136f9`](https://github.com/cloudflare/workers-sdk/commit/e3136f9354517b448d557341a429f0820dea33a0) Thanks [@petebacondarwin](https://github.com/petebacondarwin)! - chore: update unenv dependency version
+
+- [#6749](https://github.com/cloudflare/workers-sdk/pull/6749) [`9a06f88`](https://github.com/cloudflare/workers-sdk/commit/9a06f88dac311a2ff64df6bdc7ae90418bd0ec6c) Thanks [@CarmenPopoviciu](https://github.com/CarmenPopoviciu)! - fix: Throw error when attempting to configure Workers with assets and tail consumers
+
+  Tail Workers are currently not supported for Workers with assets. This commit ensures we throw a corresponding error if users are attempting to configure `tail_consumers` via their configuration file, for a Worker with assets. This validation is applied for all `wrangler dev`, `wrangler deploy`, `wrangler versions upload`.
+
+- [#6746](https://github.com/cloudflare/workers-sdk/pull/6746) [`0deb42b`](https://github.com/cloudflare/workers-sdk/commit/0deb42b2b6b5960d0bd79884471805069c0f29b0) Thanks [@GregBrimble](https://github.com/GregBrimble)! - fix: Fix assets upload message to correctly report number of uploaded assets
+
+- [#6745](https://github.com/cloudflare/workers-sdk/pull/6745) [`6dbbb88`](https://github.com/cloudflare/workers-sdk/commit/6dbbb880966caa58f29f5aafff764af57988db63) Thanks [@jonesphillip](https://github.com/jonesphillip)! - fix: r2 bucket notification get <bucket_name> has been marked deprecated in favor of r2 bucket notification list <bucket_name> to reflect behavior.
+
+- Updated dependencies [[`2407c41`](https://github.com/cloudflare/workers-sdk/commit/2407c41484f29845a64ccffd9368bc5d234eb831)]:
+  - miniflare@3.20240909.3
+
+## 3.78.4
+
+### Patch Changes
+
+- [#6706](https://github.com/cloudflare/workers-sdk/pull/6706) [`1c42466`](https://github.com/cloudflare/workers-sdk/commit/1c4246631e4fe248e584e7db6a73810b9a87ea9f) Thanks [@jkoe-cf](https://github.com/jkoe-cf)! - fix: making explicit to only send a body if there are rule ids specified in the config delete
+
+- [#6714](https://github.com/cloudflare/workers-sdk/pull/6714) [`62082aa`](https://github.com/cloudflare/workers-sdk/commit/62082aa75b767368d0a5c8c59a24a5f91a1b0c73) Thanks [@OilyLime](https://github.com/OilyLime)! - fix: rough edges when creating and updating Hyperdrive over Access configs
+
+- [#6705](https://github.com/cloudflare/workers-sdk/pull/6705) [`ea60a52`](https://github.com/cloudflare/workers-sdk/commit/ea60a52a4e350b6c439d734618e3cd4187f3f2d5) Thanks [@emily-shen](https://github.com/emily-shen)! - fix: include compatibility date in static-asset only uploads (experimental feature)
+
+## 3.78.3
+
+### Patch Changes
+
+- [#6686](https://github.com/cloudflare/workers-sdk/pull/6686) [`2c8506f`](https://github.com/cloudflare/workers-sdk/commit/2c8506f874171f4ccdf99357855389841578d348) Thanks [@DaniFoldi](https://github.com/DaniFoldi)! - fix: Bump path-to-regexp dependency version
+
+- [#6329](https://github.com/cloudflare/workers-sdk/pull/6329) [`c135de4`](https://github.com/cloudflare/workers-sdk/commit/c135de4707234e11f7f6438bea6a7067e8f284f9) Thanks [@penalosa](https://github.com/penalosa)! - chore: Cache generated runtime types
+
+- Updated dependencies [[`5b5dd95`](https://github.com/cloudflare/workers-sdk/commit/5b5dd9573b2c43023cbcba0fbcc3e374465e745e)]:
+  - miniflare@3.20240909.2
+
 ## 3.78.2
 
 ### Patch Changes

@@ -1,13 +1,16 @@
 import { kCurrentWorker, Miniflare } from "miniflare";
+import { processAssetsArg } from "../../../assets";
 import { readConfig } from "../../../config";
 import { DEFAULT_MODULE_RULES } from "../../../deployment-bundle/rules";
 import { getBindings } from "../../../dev";
 import { getBoundRegisteredWorkers } from "../../../dev-registry";
 import { getVarsForDev } from "../../../dev/dev-vars";
 import {
+	buildAssetOptions,
 	buildMiniflareBindingOptions,
 	buildSitesOptions,
 } from "../../../dev/miniflare";
+import { getClassNamesWhichUseSQLite } from "../../../dev/validate-dev-props";
 import { run } from "../../../experimental-flags";
 import { getLegacyAssetPaths, getSiteAssetPaths } from "../../../sites";
 import { CacheStorage } from "./caches";
@@ -244,8 +247,15 @@ export function unstable_getMiniflareWorkerOptions(
 	define: Record<string, string>;
 	main?: string;
 } {
+	// experimental json is usually enabled via a cli arg,
+	// so it cannot be passed to the vitest integration.
+	// instead we infer it from the config path (instead of setting a default)
+	// because wrangler.json is not compatible with pages.
+	const isJsonConfigFile =
+		configPath.endsWith(".json") || configPath.endsWith(".jsonc");
+
 	const config = readConfig(configPath, {
-		experimentalJsonConfig: true,
+		experimentalJsonConfig: isJsonConfigFile,
 		env,
 	});
 
@@ -284,15 +294,24 @@ export function unstable_getMiniflareWorkerOptions(
 		);
 	}
 	if (bindings.durable_objects !== undefined) {
+		type DurableObjectDefinition = NonNullable<
+			typeof bindingOptions.durableObjects
+		>[string];
+
+		const classNameToUseSQLite = getClassNamesWhichUseSQLite(config.migrations);
+
 		bindingOptions.durableObjects = Object.fromEntries(
-			bindings.durable_objects.bindings.map((binding) => [
-				binding.name,
-				{
-					className: binding.class_name,
-					scriptName: binding.script_name,
-					binding,
-				},
-			])
+			bindings.durable_objects.bindings.map((binding) => {
+				const useSQLite = classNameToUseSQLite.get(binding.class_name);
+				return [
+					binding.name,
+					{
+						className: binding.class_name,
+						scriptName: binding.script_name,
+						useSQLite,
+					} satisfies DurableObjectDefinition,
+				];
+			})
 		);
 	}
 
@@ -300,6 +319,10 @@ export function unstable_getMiniflareWorkerOptions(
 		? getLegacyAssetPaths(config, undefined)
 		: getSiteAssetPaths(config);
 	const sitesOptions = buildSitesOptions({ legacyAssetPaths });
+	const processedAssetOptions = processAssetsArg({ assets: undefined }, config);
+	const assetOptions = processedAssetOptions
+		? buildAssetOptions({ assets: processedAssetOptions })
+		: {};
 
 	const workerOptions: SourcelessWorkerOptions = {
 		compatibilityDate: config.compatibility_date,
@@ -308,6 +331,7 @@ export function unstable_getMiniflareWorkerOptions(
 
 		...bindingOptions,
 		...sitesOptions,
+		...assetOptions,
 	};
 
 	return { workerOptions, define: config.define, main: config.main };

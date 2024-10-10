@@ -1,3 +1,4 @@
+import type { AssetsOptions } from "../../assets";
 import type { Config } from "../../config";
 import type {
 	CustomDomainRoute,
@@ -6,7 +7,6 @@ import type {
 	ZoneIdRoute,
 	ZoneNameRoute,
 } from "../../config/environment";
-import type { NodeJSCompatMode } from "../../deployment-bundle/node-compat";
 import type {
 	CfAnalyticsEngineDataset,
 	CfD1Database,
@@ -29,12 +29,12 @@ import type {
 import type { WorkerRegistry } from "../../dev-registry";
 import type { CfAccount } from "../../dev/create-worker-preview";
 import type { EsbuildBundle } from "../../dev/use-esbuild";
-import type { ExperimentalAssetsOptions } from "../../experimental-assets";
 import type { ConfigController } from "./ConfigController";
 import type {
 	DispatchFetch,
 	Json,
 	Miniflare,
+	NodeJSCompatMode,
 	Request,
 	Response,
 } from "miniflare";
@@ -165,12 +165,10 @@ export interface StartDevWorkerInput {
 		enableServiceEnvironments?: boolean;
 	};
 	unsafe?: Omit<CfUnsafe, "bindings">;
-	experimental?: {
-		assets?: Omit<ExperimentalAssetsOptions, "bindings">;
-	};
+	assets?: string;
 }
 
-export type StartDevWorkerOptions = StartDevWorkerInput & {
+export type StartDevWorkerOptions = Omit<StartDevWorkerInput, "assets"> & {
 	/** A worker's directory. Usually where the wrangler.toml file is located */
 	directory: string;
 	build: StartDevWorkerInput["build"] & {
@@ -191,6 +189,7 @@ export type StartDevWorkerOptions = StartDevWorkerInput & {
 		persist: string;
 	};
 	entrypoint: string;
+	assets?: AssetsOptions;
 };
 
 export type HookValues = string | number | boolean | object | undefined | null;
